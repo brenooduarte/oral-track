@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: oral-track-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/.gradle
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/oraltrack
+      SPRING_DATASOURCE_USERNAME: oraltrack_user
+      SPRING_DATASOURCE_PASSWORD: oraltrack_password
+    depends_on:
+      - db
+    command: ./gradlew bootRun --no-daemon
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - oral-track-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: oral-track-db
+    environment:
+      POSTGRES_DB: oraltrack
+      POSTGRES_USER: oraltrack_user
+      POSTGRES_PASSWORD: oraltrack_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - oral-track-network
+
+volumes:
+  postgres-data:
+
+networks:
+  oral-track-network:
+    driver: bridge
